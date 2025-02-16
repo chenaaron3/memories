@@ -1,8 +1,7 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
-
-import { countNonWhiteSpace, sleep } from '../utils/utils';
-import { Character } from './Character';
+import { Character } from '~/components/Character';
+import { countNonWhiteSpace, sleep } from '~/utils/utils';
 
 interface LetterProps {
     content: string

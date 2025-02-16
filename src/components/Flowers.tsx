@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useMediaQueries } from '~/utils/mediaQueries';
 
+import Chamomile from '@public/chamomile.png';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
-
-import Chamomile from '../../public/chamomile.png';
-import { useMediaQueries } from '../utils/mediaQueries';
-
-console.log(Chamomile);
 
 export const Flowers = () => {
     const { isSmallScreen } = useMediaQueries()
@@ -15,8 +12,10 @@ export const Flowers = () => {
     // this should be run only once per application lifetime
     useEffect(() => {
         void initParticlesEngine(async (engine) => {
+            console.log("Loading engine!")
             await loadSlim(engine);
         }).then(() => {
+            console.log("Engine loaded!")
             setInit(true);
         });
     }, []);
@@ -64,7 +63,7 @@ export const Flowers = () => {
                     type: 'image',
                     options: {
                         image: {
-                            src: Chamomile,
+                            src: Chamomile.src,
                         },
                     },
                 },

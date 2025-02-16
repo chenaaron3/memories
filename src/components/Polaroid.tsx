@@ -1,15 +1,10 @@
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import { FC, useEffect, useState } from 'react';
+import { Letter } from '~/components/Letter';
+import { PolaroidData } from '~/types';
 
-import { Letter } from './Letter';
-
-export interface PolaroidProps {
-    src: string,
-    caption: string
-}
-
-export const Polaroid: FC<PolaroidProps> = ({ src, caption }: PolaroidProps) => {
+export const Polaroid: FC<PolaroidData> = ({ src, caption }: PolaroidData) => {
     const [angle, setAngle] = useState(0);
     useEffect(() => {
         setAngle(Math.random() * 10 - 5);
@@ -58,7 +53,7 @@ export const Polaroid: FC<PolaroidProps> = ({ src, caption }: PolaroidProps) => 
                         src={src} />
                     <motion.div
                         style={{ backgroundImage: `url(/noise.png)` }}
-                        className="absolute h-full inset-0 opacity-15 pointer-events-none" />
+                        className="absolute h-full inset-0 opacity-42 pointer-events-none" />
                 </div>
                 <div className='text-sm m-2 h-full w-full text-center justify-center items-center flex'>
                     <Letter content={caption} centered size={.75} ></Letter>

@@ -19,7 +19,11 @@ const config = {
   },
   transpilePackages: ["geist"],
   images: {
-    domains: ['i.postimg.cc']
+    remotePatterns: [
+      {
+        'hostname': "**"
+      }
+    ]
   },
 };
 

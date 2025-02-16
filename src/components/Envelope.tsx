@@ -2,20 +2,17 @@ import { motion, useAnimate, useMotionValue, useSpring } from 'framer-motion';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import ConfettiExplosion from 'react-confetti-explosion';
+import { Letter } from '~/components/Letter';
+import { usePostcardStore } from '~/store';
+import { useMediaQueries } from '~/utils/mediaQueries';
+import { sleep } from '~/utils/utils';
 
-import Axolotl from '../../public/axolotl.gif';
-import Poof from '../../public/poof.gif';
-import { usePostcardStore } from '../store';
-import { useMediaQueries } from '../utils/mediaQueries';
-import { sleep } from '../utils/utils';
-import { Letter } from './Letter';
-
-const content = "Happy Valentines Day!"
+import Axolotl from '@public/axolotl.gif';
+import Poof from '@public/poof.gif';
 
 export const Envelope = () => {
     const [scope, animate] = useAnimate()
     const [canOpen, setCanOpen] = useState(false)
-    const [opened, setOpened] = useState(false)
     const [isExploding, setIsExploding] = useState(false);
     const [showLetter, setShowLetter] = useState(false);
     const [letterFinished, setLetterFinished] = useState(false);
@@ -23,6 +20,9 @@ export const Envelope = () => {
     const angleSpring = useSpring(angle, { stiffness: 100, damping: 10 })
     const { isSmallScreen } = useMediaQueries()
     const openPolaroids = usePostcardStore(state => state.openPolaroids)
+    const openLetter = usePostcardStore(state => state.openLetter)
+    const letterOpened = usePostcardStore(state => state.letterOpened)
+    const postcard = usePostcardStore(state => state.postcard);
 
     // Startup animation => Dragging letter to middle
     useEffect(() => {
@@ -30,7 +30,7 @@ export const Envelope = () => {
             // Dragging to middle
             await animate("#envelope",
                 { x: ["-50vw", "-40vw", "-40vw", "-30vw", "-30vw", "-20vw", "-20vw", "-10vw", "-10vw", "0"] },
-                { delay: .9, duration: 5, ease: 'easeOut' }
+                { delay: .9, duration: 1, ease: 'easeOut' }
             )
             // Bye bye vacuum with poof
             animate("#vacuum", { opacity: 0 }, { duration: .25 })
@@ -44,20 +44,15 @@ export const Envelope = () => {
 
     // Hover effect to lift the flap
     const handleHover = useCallback((hover: boolean) => {
-        if (opened) return
+        if (letterOpened) return
         if (hover) angle.set(45)
         else angle.set(0)
-    }, [opened])
+    }, [letterOpened])
 
     // Open the letter
-    const openLetter = useCallback(async () => {
-        if (canOpen && !opened) {
-            const audio = new Audio('/music.mp3');
-            audio.volume = .75
-            audio.loop = true;
-            void audio.play()
-
-            setOpened(true);
+    const handleLetterClick = useCallback(async () => {
+        if (canOpen && !letterOpened) {
+            openLetter();
             // Open letter
             animate("#flap", { rotateX: 180 }, { duration: 1, ease: 'circOut' })
             await animate("#envelope", { transform: "translateY(25%)" }, { duration: 1 })
@@ -84,7 +79,7 @@ export const Envelope = () => {
             await animate("#paper", { height: isSmallScreen ? "120%" : undefined, transform: `translateY(25%) scale(1.2)`, backgroundColor: ["#808080", "#FFFFFF"] }, { duration: .75, ease: "easeInOut" })
             setShowLetter(true);
         }
-    }, [canOpen, opened])
+    }, [canOpen, letterOpened])
 
     return (
         <motion.div
@@ -94,17 +89,15 @@ export const Envelope = () => {
             <motion.div id="envelope" className='shadow-xl rounded-b-xl w-60 h-40 sm:w-96 sm:h-64 relative'
                 initial={{ x: "-50vw" }}
                 onHoverStart={() => handleHover(true)} onHoverEnd={() => handleHover(false)}
-                onClick={openLetter}
+                onClick={handleLetterClick}
             >
                 {/* Back of envelope */}
                 <motion.div className="absolute z-10 w-full h-1/2 bg-red-200 [clip-path:polygon(0%_0%,100%_0%,50%_100%)] transform-3d origin-top" />
                 {/* Paper */}
                 <motion.div id="paper" className="shadow-xl perspective-distant absolute rounded-b-4xl z-20 w-[95%] left-[2.5%] h-[90%] bottom-1 bg-white">
                     <motion.div id="paperfold" className="perspective-distant absolute inset-0 rounded-b-4xl bg-white origin-top" >
-                        {showLetter && <div className="p-5 sm:p-7 absolute inset-0 w-full rotate-x-180 top-0"
-                        // style={{ transform: "rotateX(180deg)" }}
-                        >
-                            <Letter onComplete={() => setLetterFinished(true)} size={isSmallScreen ? .75 : 1} content={content} />
+                        {showLetter && <div className="p-5 sm:p-7 absolute inset-0 w-full rotate-x-180 top-0">
+                            <Letter onComplete={() => setLetterFinished(true)} size={isSmallScreen ? .75 : 1} content={postcard.letter} />
                         </div>}
                     </motion.div>
                     {letterFinished && <motion.button
@@ -142,7 +135,7 @@ export const Envelope = () => {
                     </div>
                     <img id="heart" className='m-auto absolute inset-0' width={45} height={45} src={'/heart.png'} alt='heart' />
                     <div className='absolute bottom-0 w-full pb-10'>
-                        {canOpen && <Letter size={isSmallScreen ? 1.5 : 2} content="For Eri!!" centered={true} />}
+                        {canOpen && <Letter size={isSmallScreen ? 1.5 : 2} content={postcard.name} centered={true} />}
                     </div>
                 </div>
             </motion.div>

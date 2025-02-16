@@ -1,36 +1,18 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
-
-import { Polaroid, PolaroidProps } from './Polaroid';
-
-const images: PolaroidProps[] = [
-    {
-        src: 'https://i.postimg.cc/P5RLwyw9/dot.jpg',
-        caption: "Babi confused @ Library"
-    },
-    {
-        src: 'https://i.postimg.cc/P5RLwyw9/dot.jpg',
-        caption: "Babi confused @ Library"
-    },
-    {
-        src: 'https://i.postimg.cc/P5RLwyw9/dot.jpg',
-        caption: "Babi confused @ Library"
-    },
-    {
-        src: 'https://i.postimg.cc/P5RLwyw9/dot.jpg',
-        caption: "Babi confused @ Library"
-    },
-]
+import { Polaroid } from '~/components/Polaroid';
+import { usePostcardStore } from '~/store';
 
 export const Polaroids = () => {
     // Scroll through polaroids
     const [visibleIndex, setVisibleIndex] = useState(0);
     const [timeoutHandle, setTimeoutHandle] = useState<NodeJS.Timeout | null>(null);
+    const polaroids = usePostcardStore(state => state.postcard.polaroids);
 
     // Auto scroll through polaroids
     useEffect(() => {
         let nextIndex = visibleIndex + 1;;
-        if (nextIndex >= images.length) {
+        if (nextIndex >= polaroids.length) {
             nextIndex = 0;
         }
         const timeout = setTimeout(() => {
@@ -44,7 +26,7 @@ export const Polaroids = () => {
             let newIndex = 0;
             // Change polaroid in circular loop
             if (event.key === 'ArrowRight') {
-                if (visibleIndex < images.length - 1) {
+                if (visibleIndex < polaroids.length - 1) {
                     newIndex = visibleIndex + 1;
                 } else {
                     newIndex = 0;
@@ -53,7 +35,7 @@ export const Polaroids = () => {
                 if (visibleIndex > 0) {
                     newIndex = visibleIndex - 1;
                 } else {
-                    newIndex = images.length - 1;
+                    newIndex = polaroids.length - 1;
                 }
             }
             // Cancel any existing animations
@@ -72,6 +54,6 @@ export const Polaroids = () => {
 
     // A series of polaroids dangling from a string. Add padding so rotation doesnt get cut off
     return <motion.div layout className='py-24 w-full h-full flex justify-center items-center overflow-hidden gap-24 flex-row'>
-        <Polaroid {...images[visibleIndex]!} />
+        <Polaroid {...polaroids[visibleIndex]!} />
     </motion.div>
 }
